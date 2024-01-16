@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Attendance</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>Attendance App</h1>
+    <form id="attendanceForm" method="post" action="/attendance">
+        <label for="name">Enter Your Name:</label>
+        <input type="text" id="name" name="name" required>
+        <button type="submit">Submit</button>
+    </form>
+    <ol id="attendanceList"></ol>
+
+    <script>
+        const form = document.getElementById('attendanceForm');
+        const nameInput = document.getElementById('name');
+        const attendanceList = document.getElementById('attendanceList');
+
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+            const name = nameInput.value;
+
+            fetch('/attendance', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `name=${name}`,
+            })
+            .then(response => {
+                if (response.ok) {
+                    nameInput.value = '';
+                    fetchAttendanceList();
+                } else {
+                    alert('Failed to submit attendance.');
+                }
+            });
+        });
+
+        function fetchAttendanceList() {
+            fetch('/attendance')
+            .then(response => response.json())
+            .then(data => {
+                attendanceList.innerHTML = '';
+                data.forEach(name => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = name;
+                    attendanceList.appendChild(listItem);
+                });
+            });
+        }
+
+        // Initial fetch
+        fetchAttendanceList();
+    </script>
+</body>
+</html>
